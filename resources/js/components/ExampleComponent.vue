@@ -3,10 +3,11 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">Example Component</div>
+                    <div class="card-header">Componente de ejemplo desde Vue</div>
 
                     <div class="card-body">
-                        I'm an example component.
+                        Soy un componente ejemplo
+                        <p>{{ texto }}</p>
                     </div>
                 </div>
             </div>
@@ -18,6 +19,12 @@
     export default {
         mounted() {
             console.log('Component mounted.')
+        },
+
+        data() {
+            return{
+                texto: 'Hola mundo desde el componente!',
+            }
         }
     }
 </script>

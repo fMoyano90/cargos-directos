@@ -47,8 +47,16 @@ class CargosImport implements ToModel
         $fecha_ingreso = date('Y-m-d H:i:s');
         $fecha_vencimiento = date('Y-m-d H:i:s', strtotime($fecha_ingreso."+ 15 days"));
         
-        $cargos = Cargo::updateOrCreate([
-            'lote'            => $row[0],
+        // $lotes = array();
+        // foreach ($row as $pos=>$dato) {
+        //     $row[$pos] = str_replace(" ","",$dato);
+        // }
+
+       // if(!in_array($row[0],$lotes)){
+
+        $cargos = Cargo::updateOrCreate(
+            ['lote'           => $row[0]],
+            [
             'fecha_entrada'   => $row[1],  
             'detalle'         => $row[2],
             'nro_contable'    => $row[3],
@@ -61,26 +69,13 @@ class CargosImport implements ToModel
             'observacion'     => $row[10],
             'stock_actual'    => $stock,
             'vencimiento'     => $fecha_vencimiento,
+            'ultimo'          => $fecha_ingreso,
+            'proximo'         => $fecha_ingreso,
             'created_at'      => $fecha_ingreso
-        ]);
+        ]);//}
+        
 
-        if (!$cargos->wasRecentyCreated){
-                $cargos->update([
-                    'lote'            => $row[0],
-                    'fecha_entrada'   => $row[1],  
-                    'detalle'         => $row[2],
-                    'nro_contable'    => $row[3],
-                    'ubicacion'       => $row[4],
-                    'cantidad_stock'  => $row[5],
-                    'salida'          => $row[6],
-                    'cantidad_salida' => $row[7],
-                    'fecha_salida'    => $row[8],
-                    'correo'          => $row[9],
-                    'observacion'     => $row[10],
-                    'stock_actual'    => $stock
-    
-                ]);
-        }
+      
     }
 
 }

@@ -15,10 +15,22 @@ Route::get('/', 'HomeController@index')->name('home');
 Route::post('/import', 'HomeController@import')->name('import');
 // Listado de usuarios
 Route::get('/usuarios', 'UsuarioController@index')->name('usuarios');
+
+// Vista historial
+Route::get('/historial', function(){
+    return view('historial');
+})->name('historial');
+
 // Listado de historial
-Route::get('/historial', 'HistorialController@index')->name('historial');
+Route::get('/api/historial', 'HistorialController@index');
+
+// Vista pendientes
+Route::get('/pendientes', function(){
+    return view('pendientes');
+})->name('pendientes');
+
 // Listado de pendientes
-Route::get('/pendientes', 'PendienteController@index')->name('pendientes');
+Route::get('/api/pendientes', 'PendienteController@index');
 // Listado de vencidos
 Route::get('/vencidos', 'VencidoController@index')->name('vencidos');
 // Borrar usuario

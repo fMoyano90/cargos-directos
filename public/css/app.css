@@ -17246,3 +17246,7 @@ readers do not read off random characters that represent icons */
   font-weight: 400;
 }
 
+.bg-azul {
+  background-color: blue;
+}
+

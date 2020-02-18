@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Imports\CargosImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use App\Cargo;
-use App\Correo;
-use App\Mail\CargoDisponible;
 use Illuminate\Support\Facades\Mail;
+
 
 class HomeController extends Controller
 {
@@ -53,76 +51,45 @@ class HomeController extends Controller
     }
 
     public function emails(){   
-        $emails_array = DB::table('cargos')->where('correo', '!=', NULL)->pluck('correo');
+
+        //Recibo los cargos que tengan el campo de correo rellenado
+        $cargos = DB::table('cargos')->where('correo', '!=', NULL)->get();
         
-        $this->guardarEmails($emails_array);
-
-        $emails = DB::table('correos')->pluck('correo');
-        $correos = DB::table('correos')->get();
-
-        Mail::to($emails)->send(new CargoDisponible());
-        
-        // foreach($correos as $correo){
-        //     $fecha_actual = date('Y-m-d');
-
-        //    if($correo->primero == $fecha_actual || is_null($correo->primero)){
-               
-        //        Mail::to($correo->correo)->send(new CargoDisponible());
-        //        return back()->with(array(
-
-        //            'message' => 'Los correos se enviaron correctamente.'
-        
-        //            ));
-               
-        //     }
-        //     elseif($correo->segundo == $fecha_actual){
+        // Barro la colección 
+        foreach($cargos as $cargo){
+            
+            // Fecha actual y ultimo correo enviado 
+            $ultimo = date('Y-m-d H:i:s');
+            // Fecha de proximo correo 
+            $proximo = date('Y-m-d H:i:s', strtotime($ultimo."+ 15 days"));
+            
+            // Filtro que el stok no sea igual a 0, 
+            // que la fecha de creación sea igual a la fecha actual 
+            // o que la fecha del proximo correo sea menor o igual a la actual
+            if($cargo->stock_actual != 0 && $cargo->created_at == $ultimo || $cargo->proximo <= $ultimo ){
                 
-        //        Mail::to($correo->correo)->send(new CargoDisponible());
-        //        return back()->with(array(
+                // Actualizo los registros por su id 
+                 $cargoActualizado = Cargo::findOrFail($cargo->id);
+                 $cargoActualizado->ultimo = $ultimo;
+                 $cargoActualizado->proximo = $proximo;
+                 $cargoActualizado->update();
 
-        //            'message' => 'Los correos se enviaron correctamente.'
-        
-        //            ));
-        //     }
-        //     elseif($correo->segundo == $fecha_actual){
-                
-        //         Mail::to($correo->correo)->send(new CargoDisponible());
-        //         return back()->with(array(
+                // Enviar correo 
+                Mail::send('mails.cargo_disponible', ['cargo' => $cargo], function($c) use ($cargo){
+                     $c->to($cargo->correo)
+                     ->subject('Material disponible en bodega.');
+                });
 
-        //            'message' => 'Los correos se enviaron correctamente.'
-        
-        //            ));
-           
-        //     }else{
-        //         return back()->with(array(
+              
+            }
+            
 
-        //             'message' => 'No existen nuevos destinatarios.'
-          
-        //             ));
-        //     }
-
-        // }
+        }
 
         return back()->with(array(
 
             'message' => 'Los correos se enviaron correctamente.'
   
             ));
-    }
-
-    public function guardarEmails($collection){
-        $fecha_ingreso = date('Y-m-d H:i:s');
-        $segunda_fecha = date('Y-m-d H:i:s', strtotime($fecha_ingreso."+ 5 days"));
-        $tercera_fecha = date('Y-m-d H:i:s', strtotime($fecha_ingreso."+ 10 days"));
-
-        foreach($collection as $data){
-            DB::table('correos')->insertOrIgnore([
-                'correo' => $data,
-                'primero' => $fecha_ingreso,
-                'segundo' => $segunda_fecha,
-                'tercero' => $tercera_fecha,
-            ]);
-        }
- 
     }
 }

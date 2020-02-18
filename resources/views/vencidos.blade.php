@@ -31,7 +31,7 @@
   </thead>
   <tbody>
     @foreach ($cargos as $cargo)
-      <tr>
+      <tr class="bg-danger text-white">
         <td>{{$cargo->lote}}</td>
         <td>{{$cargo->created_at}}</td>
         <td>{{$cargo->detalle}}</td>

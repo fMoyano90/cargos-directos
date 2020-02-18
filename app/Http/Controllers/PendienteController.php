@@ -18,9 +18,19 @@ class PendienteController extends Controller
     {
         $cargos = DB::table('cargos')->where('stock_actual', '!=', 0)->orderby('created_at','desc')->paginate(10);
 
-        return view('pendientes', array(
-            'cargos' => $cargos
-        ));
+        return [
+            'code' => 200,
+            'status' => 'success',
+            'cargos' => $cargos,
+            'pagination' => [
+                'total' => $cargos->total(),
+                'current_page' => $cargos->currentPage(),
+                'per_page' => $cargos->perPage(),
+                'last_page' => $cargos->lastPage(),
+                'from' => $cargos->firstItem(),
+                'to' => $cargos->lastPage(),
+            ],
+        ];
     }
 
     public function search($search = null){
